@@ -1,0 +1,1 @@
+this is a my static text file in blog in static folder

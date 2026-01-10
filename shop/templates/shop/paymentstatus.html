@@ -1,0 +1,14 @@
+{% extends 'shop/basic.html' %}
+
+{% block title %} Title of checkout page{% endblock %}
+{% block body %}
+<div class="container">
+    {{response}}
+    <div class="col my-4">
+        <h2>payment status regarding your id {{response.ORDERID}}</h2>
+       {% if response.RRESPCODE=='01' %}
+       ORDER SUCCESSS
+       {% else %}
+       order failure
+       {% endif %}
+        {% endblock %}

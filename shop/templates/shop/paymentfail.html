@@ -1,0 +1,32 @@
+{% extends 'shop/basic.html' %}
+{% load static %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h1 class="alert-heading">✗ Payment Failed</h1>
+                    </div>
+                    
+                    <p class="lead">Unfortunately, your payment could not be processed.</p>
+                    
+                    <div class="alert alert-info mt-4">
+                        <p><strong>Reason:</strong> {{ reason|default:"Unknown error" }}</p>
+                    </div>
+                    
+                    <p class="text-muted">Please try again or contact our support team if the problem persists.</p>
+                    
+                    <div class="mt-5">
+                        <a href="{% url 'Checkout' %}" class="btn btn-primary btn-lg">Try Again</a>
+                        <a href="{% url 'ContactUs' %}" class="btn btn-secondary btn-lg ms-2">Contact Support</a>
+                        <a href="{% url 'index_shop' %}" class="btn btn-outline-secondary btn-lg ms-2">Back to Shop</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

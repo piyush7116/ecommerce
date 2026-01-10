@@ -1,0 +1,158 @@
+{%load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{% endblock %}</title>
+  
+{% block css %}<style></style>{% endblock %}
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v24.0&appId=APP_ID"></script>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/shop">My Cart</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/shop">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/shop/about">About us</a>
+          </li>
+                    <li class="nav-item">
+            <a class="nav-link" href="/shop/tracker">Tracker</a>
+          </li>
+           <li class="nav-item">
+            <a class="nav-link" href="/blog">Blog</a>
+          </li>
+                    <li class="nav-item">
+            <a class="nav-link" href="/shop/contact">Contact Us</a>
+          </li>
+          
+         
+          <li class="nav-item">
+          </li>
+        </ul>
+        <form method="get" action="/shop/search/" class="d-flex" role="search">
+          <input class="form-control me-2" name="search" id="search"  type="search" placeholder="Search" aria-label="Search" />
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+        <button type="button" 
+        class="btn btn-secondary mx-2" 
+        id="popcart" 
+        data-bs-container="body" 
+        data-bs-toggle="popover" 
+        data-bs-placement="bottom"
+        data-bs-html="true"
+        data-bs-content="Empty">
+  cart(<span id="cart">0</span>)
+</button>
+
+      </div>
+    </div>
+  </nav>
+{% block body %}{% endblock %}
+     <footer class="container">
+                <p class="float-end"><a href="#">Back to top</a></p>
+                <p>&copy; 2017–2025 Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+            </footer>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.npmmirror.com/package/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{% block js %}
+<script>
+   var cart;
+var storedData = localStorage.getItem('cart');
+if (storedData == null || storedData == 'undefined') {
+    cart = {};
+} else {
+    cart = JSON.parse(storedData);
+}
+  updateCart(cart);
+
+  // 2. Add to Cart Logic
+
+  // 4. Initialize Popover
+  $(function () {
+    $('#popcart').popover();
+    document.getElementById("popcart").setAttribute('data-content', '<h5>Items in your cart</h5>');
+  });
+
+function updateCart(cart) {
+    var sum=0;
+    for (var item in cart) {
+      sum+=cart[item][0];   
+      // 1. Find the element
+        let targetDiv = document.getElementById('div' + item);
+        
+        // 2. ONLY try to change innerHTML if the element actually exists
+        if (targetDiv) {
+            targetDiv.innerHTML = "<button id='minus" + item + "' class='btn btn-primary minus'>-</button> " +
+                                  "<span id='val" + item + "'>" + cart[item][0] + "</span> " +
+                                  "<button id='plus" + item + "' class='btn btn-primary plus'>+</button>";
+        }
+    }
+    // 3. Update the localStorage and the counter here too
+    localStorage.setItem('cart', JSON.stringify(cart));
+    document.getElementById('cart').innerHTML = sum;
+    updatePopover(cart);
+}
+function updatePopover(cart){
+  var popstr="";
+popstr=popstr+"<h5> Cart for you items in shoping cart:</h5><div clas='row mx-2 my-2'>";
+  var i=1;
+  for(var item in cart){
+    popstr+="<b>"+i+". </b>";
+    console.log('name'+item);  
+    popstr+=document.getElementById('name'+item).innerHTML.slice(0,9)+"... Qty: "+cart[item][0]+"<br>";
+    i+=1;
+  }popstr+="</div><a href='/shop/checkout' class='btn btn-primary btn-sm mt-2 mx-2' id='checkout'>Checkout</a><button id='clearCart' onclick='clearCart()' class='btn btn-primary btn-sm mx-2 mt-2'>Clear Cart</button>";
+  // document.getElementById('popcart').setAttribute('data-bs-content',popstr);
+// Update the attribute
+    let popElem = document.getElementById('popcart');
+    
+    // 1. Update the data attribute for consistency
+    popElem.setAttribute('data-bs-content', popstr);
+
+    // 2. Get the existing instance
+    let instance = bootstrap.Popover.getInstance(popElem);
+
+    if (instance) {
+        // 3. Update the content directly without disposing
+        instance.setContent({
+            '.popover-body': popstr
+        });
+    } else {
+        // Fallback: Initialize if it doesn't exist yet
+        new bootstrap.Popover(popElem, {
+            html: true,
+            sanitize: false,
+            trigger: 'click'
+        });
+    }
+}
+function clearCart(){
+  cart=JSON.parse(localStorage.getItem('cart'));
+  for(var item in cart){
+document.getElementById('div'+item).innerHTML='<button id="'+item+'" class="cart btn btn-primary" type="button">Add to cart</button>'   }
+localStorage.clear();
+cart={};
+updateCart(cart);
+}
+</script>
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends 'shop/basic.html' %}
+{% load static %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="alert alert-success" role="alert">
+                        <h1 class="alert-heading">✓ Payment Successful!</h1>
+                    </div>
+                    
+                    {% if order %}
+                        <p class="lead">Your order has been placed successfully.</p>
+                        <div class="order-details mt-4">
+                            <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+                            <p><strong>Amount:</strong> ₹{{ order.amount }}</p>
+                            <p><strong>Status:</strong> <span class="badge bg-success">{{ order.status }}</span></p>
+                            <p><strong>Order Date:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="mt-4">
+                            <p>We've sent a confirmation email to <strong>{{ order.email }}</strong></p>
+                            <p>You can track your order status from the tracker page.</p>
+                        </div>
+                    {% else %}
+                        <p class="text-warning">Order details could not be found. Please check your email for confirmation.</p>
+                    {% endif %}
+                    
+                    <div class="mt-5">
+                        <a href="{% url 'index_shop' %}" class="btn btn-primary btn-lg">Continue Shopping</a>
+                        <a href="{% url 'TrackingStatus' %}" class="btn btn-info btn-lg ms-2">Track Order</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
