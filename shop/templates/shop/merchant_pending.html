@@ -1,0 +1,13 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Account Pending Approval{% endblock %}
+
+{% block body %}
+<div class="container my-4 text-center" style="max-width: 500px;">
+    <div class="card p-4">
+        <h4 class="mb-3">Account Pending Approval</h4>
+        <p class="text-muted">Your merchant account has been submitted and is currently under review by our team. You will be able to login and add products once approved.</p>
+        <p class="text-muted">If you have any questions, please contact support.</p>
+        <a href="{% url 'index_shop' %}" class="btn btn-outline-secondary mt-2">Back to Shop</a>
+    </div>
+</div>
+{% endblock %}

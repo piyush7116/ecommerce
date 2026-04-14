@@ -1,0 +1,135 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Merchant Dashboard{% endblock %}
+
+{% block body %}
+<div class="container my-4">
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <h2 class="mb-4">Merchant Dashboard</h2>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>{{ products.count }}</h4>
+                <small class="text-muted">My Products</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>{{ total_orders }}</h4>
+                <small class="text-muted">Total Orders</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>&#8377;{{ total_revenue }}</h4>
+                <small class="text-muted">Total Revenue</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>Recent Orders</strong>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Order ID</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Update Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        <tr>
+                            <td class="ps-3">#{{ sale.order.order_id }}</td>
+                            <td>{{ sale.product.product_name }}</td>
+                            <td>{{ sale.quantity }}</td>
+                            <td>&#8377;{{ sale.price }}</td>
+                            <td>
+                                <span class="badge bg-secondary" id="status-{{ sale.item_id }}">
+                                    {{ sale.vendor_status }}
+                                </span>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm status-select" data-item-id="{{ sale.item_id }}" style="width:auto;">
+                                    <option value="Processing" {% if sale.vendor_status == 'Processing' %}selected{% endif %}>Processing</option>
+                                    <option value="Shipped" {% if sale.vendor_status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                    <option value="Out for Delivery" {% if sale.vendor_status == 'Out for Delivery' %}selected{% endif %}>Out for Delivery</option>
+                                    <option value="Delivered" {% if sale.vendor_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center py-3 text-muted">No orders yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Products -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>My Products</strong>
+            <a href="{% url 'AddProduct' %}" class="btn btn-sm btn-primary">+ Add Product</a>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                {% for product in products %}
+                <div class="col-md-3">
+                    <div class="card h-100">
+                        <img src="/media/{{ product.image }}" class="card-img-top" alt="{{ product.product_name }}" style="height:130px;object-fit:cover;">
+                        <div class="card-body p-2 text-center">
+                            <h6 class="mb-1">{{ product.product_name }}</h6>
+                            <p class="text-muted mb-2">&#8377;{{ product.price }}</p>
+                            <a href="{% url 'EditProduct' product.id %}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                            <a href="{% url 'DeleteProduct' product.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-muted text-center py-3">
+                    No products yet. <a href="{% url 'AddProduct' %}">Add your first product</a>.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script>
+$('.status-select').on('change', function () {
+    var itemId = $(this).data('item-id');
+    var newStatus = $(this).val();
+    $.ajax({
+        url: "/shop/merchant/update_status/",
+        method: "POST",
+        data: { 'item_id': itemId, 'status': newStatus, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+        success: function (response) {
+            if (response.status === 'success') { location.reload(); }
+        },
+        error: function () { alert("Failed to update status."); }
+    });
+});
+</script>
+{% endblock %}

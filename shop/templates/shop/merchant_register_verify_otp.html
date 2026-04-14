@@ -1,0 +1,35 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Verify Registration OTP{% endblock %}
+
+{% block body %}
+<div class="container my-4" style="max-width: 430px;">
+    <h2 class="mb-1">Verify Your Email</h2>
+    <p class="text-muted mb-4">
+        A 6-digit OTP has been sent to <strong>{{ masked_email }}</strong>.
+        Enter it below to complete your registration.
+    </p>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Enter OTP</label>
+                    <input type="text" name="otp" class="form-control form-control-lg text-center"
+                           maxlength="6" placeholder="------" autofocus autocomplete="one-time-code"
+                           style="letter-spacing: 0.4rem; font-size: 1.4rem;">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Verify & Register</button>
+            </form>
+        </div>
+    </div>
+    <p class="text-center mt-3">
+        <a href="{% url 'MerchantRegister' %}">← Back to Registration</a>
+    </p>
+    <p class="text-muted text-center small">OTP is valid for 10 minutes.</p>
+</div>
+{% endblock %}

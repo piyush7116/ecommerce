@@ -101,18 +101,9 @@
 
 
 
-Features
-
-Responsive design — works on mobile and desktop.
-Form fields for name, email, subject, and message.
-Basic HTML5 validation (required and type="email").
-Clean, modern styling with hover effects.
-
-
-If you want, I can add JavaScript form validation and connect it to a backend (PHP/Node.js) so that the form actually sends emails.
-Do you want me to make this fully functional with email sending?
 {% endblock %}
 {% block js %}
+{{ block.super }}
 <script>
 var yesno="{{thank}}";
 if (yesno=="True") { 

@@ -1,98 +1,219 @@
 {% extends 'shop/basic.html' %}
-
-{% block title %} Title of checkout page{% endblock %}
+{% block title %}Track Your Order{% endblock %}
+{% block css %}
+<style>
+    .tracker-hero {
+        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+        padding: 1.5rem 1rem; text-align: center; color: #333;
+        border-radius: 0 0 20px 20px; margin-bottom: 1.5rem;
+    }
+    .tracker-hero h1 { font-weight: 700; font-size: 1.7rem; color: #1a1a2e; }
+    .tracker-hero p { color: #555; font-size: 0.95rem; margin-bottom: 0; }
+    .tracker-form-card {
+        background: #fff; border-radius: 16px; padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto 2rem;
+    }
+    /* Timeline */
+    .timeline-wrapper {
+        display: none;
+        background: #fff; border-radius: 16px; padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1); max-width: 750px; margin: 0 auto;
+    }
+    .timeline {
+        display: flex; justify-content: space-between;
+        position: relative; margin: 2rem 0;
+    }
+    .timeline::before {
+        content: ''; position: absolute; top: 24px; left: 0; right: 0;
+        height: 4px; background: #e0e0e0; z-index: 0;
+    }
+    .timeline-progress {
+        content: ''; position: absolute; top: 24px; left: 0;
+        height: 4px; background: linear-gradient(90deg, #7c5cbf, #5a82e6); z-index: 1;
+        transition: width 1s ease;
+        width: 0%;
+    }
+    .step {
+        display: flex; flex-direction: column; align-items: center;
+        position: relative; z-index: 2; flex: 1;
+    }
+    .step-icon {
+        width: 52px; height: 52px; border-radius: 50%;
+        background: #e0e0e0; display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; font-weight: 700; color: #888;
+        border: 4px solid #e0e0e0; transition: all 0.5s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .step.active .step-icon {
+        background: linear-gradient(135deg, #7c5cbf, #5a82e6);
+        border-color: #7c5cbf; color: #fff;
+        box-shadow: 0 4px 20px rgba(124,92,191,0.5);
+        animation: pulse 2s infinite;
+    }
+    .step.done .step-icon {
+        background: #28a745; border-color: #28a745; color: #fff;
+    }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 4px 20px rgba(124,92,191,0.5); }
+        50% { box-shadow: 0 4px 30px rgba(124,92,191,0.9); }
+    }
+    .step-label {
+        margin-top: 0.6rem; font-size: 0.78rem; font-weight: 600;
+        color: #888; text-align: center; max-width: 80px;
+    }
+    .step.active .step-label, .step.done .step-label { color: #333; }
+    .updates-list { margin-top: 2rem; }
+    .update-item {
+        display: flex; gap: 1rem; padding: 0.8rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .update-icon { font-size: 1.2rem; }
+    .update-text { font-size: 0.9rem; color: #333; }
+    .update-time { font-size: 0.78rem; color: #aaa; margin-top: 2px; }
+    .order-summary-card {
+        background: #f8f9fa; border-radius: 12px; padding: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
 {% block body %}
+<div class="tracker-hero">
+    <h1> Track Your Order</h1>
+    <p class="opacity-75">Enter your Order ID and email to see real-time updates</p>
+</div>
+
 <div class="container">
-    <div class="col my-4">
-        <h2>My Awesonme Cart Tracker - Enter Your Order Id and Email address to track your order</h2>
-        <form class="row g-3" method="post" action="#" id="trackerForm">{% csrf_token %}
-            <div class="col-md-6">
-                <label for="inputOrderID" class="form-label">Order ID</label>
-                <input type="name" class="form-control" placeholder="Enter Your Order ID" name="inputOrderID"
-                    id="inputOrderID">
+    <div class="tracker-form-card">
+        <form id="tracker-form">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Order ID</label>
+                <input type="text" id="inputOrderID" class="form-control" placeholder="e.g. 42" required>
             </div>
-            <div class="col-md-6">
-                <label for="inputEmail4" class="form-label">Email</label>
-                <input type="email" class="form-control" name="inputEmail4" id="inputEmail4">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Email Address</label>
+                <input type="email" id="inputEmail4" class="form-control" placeholder="your@email.com" required>
             </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Track Order</button>
-            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Track Order</button>
         </form>
-        <div class="col my-4">
-            <h2>Your Order Status</h2>
-            <div>
-                <ul class="list-group " id="items">
-Enter Your order id and email and click TrackORder to find details about your order                </ul>
+    </div>
 
+    <div class="timeline-wrapper" id="tracking-result">
+        <h5 class="fw-bold mb-1">Order Status</h5>
+        <div class="order-summary-card" id="order-summary"></div>
+
+        <!-- Timeline -->
+        <div class="timeline" id="timeline">
+            <div class="timeline-progress" id="timeline-progress"></div>
+            <div class="step" id="step-placed">
+                <div class="step-icon">📋</div>
+                <div class="step-label">Order Placed</div>
+            </div>
+            <div class="step" id="step-processing">
+                <div class="step-icon">⚙️</div>
+                <div class="step-label">Processing</div>
+            </div>
+            <div class="step" id="step-shipped">
+                <div class="step-icon">🚚</div>
+                <div class="step-label">Shipped</div>
+            </div>
+            <div class="step" id="step-delivery">
+                <div class="step-icon">🏠</div>
+                <div class="step-label">Out for Delivery</div>
+            </div>
+            <div class="step" id="step-delivered">
+                <div class="step-icon">✅</div>
+                <div class="step-label">Delivered</div>
             </div>
         </div>
-        <div class="col my-4">
-            <h2>Your Order Details</h2>
-            <div>
-                <ul class="list-group " id="citems">
-Enter Your order id and email and click TrackORder to find details about your order                </ul>
 
-            </div>
-        </div>
-        {% endblock %}
-        {% block js %}
-        <script>
-            $('#trackerForm').submit(function (event) {
+        <!-- Updates Log -->
+        <div class="updates-list" id="updates-list"></div>
+    </div>
 
-                $('#items').empty();
-                $('#citems').empty();
-                var formData = {
-                    'inputOrderID': $('input[name=inputOrderID]').val(),
-                    'inputEmail4': $('input[name=inputEmail4]').val(),
-                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+    <div id="no-order-msg" class="text-center text-danger py-3" style="display:none;">
+        <strong>Order not found.</strong> Please check your Order ID and email.
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+{{ block.super }}
+<script>
+const STEP_KEYWORDS = {
+    'step-placed':    ['placed', 'payment received', 'razorpay'],
+    'step-processing':['processing', 'confirmed', 'packing'],
+    'step-shipped':   ['shipped', 'dispatched'],
+    'step-delivery':  ['out for delivery', 'out for'],
+    'step-delivered': ['delivered'],
+};
+const STEP_ORDER = ['step-placed', 'step-processing', 'step-shipped', 'step-delivery', 'step-delivered'];
+const PROGRESS_MAP = { 'step-placed': '10%', 'step-processing': '30%', 'step-shipped': '57%', 'step-delivery': '78%', 'step-delivered': '100%' };
+
+function getActiveStep(updates) {
+    let maxStep = 'step-placed';
+    updates.forEach(u => {
+        const text = u.text.toLowerCase();
+        STEP_ORDER.slice().reverse().forEach(stepId => {
+            STEP_KEYWORDS[stepId].forEach(kw => {
+                if (text.includes(kw)) {
+                    if (STEP_ORDER.indexOf(stepId) >= STEP_ORDER.indexOf(maxStep)) {
+                        maxStep = stepId;
+                    }
                 }
-                $.ajax({
-                    type: 'POST',
-                    url: '/shop/tracker/',
-                    data: formData,
-                    encode: true
-                })
-                    .done(function (data) {
-                        
-                        data = JSON.parse(data);
-                        if (data['status']=='success'){ 
-                        updates=data['updates'];
-                        for (i = 0; i < updates.length; i++) {
-                            let text = updates[i]['text'];
-                            let time = updates[i]['time'];
-                            mystr = `<li class="list-group-item d-flex justify-content-between align-items-center">
-        ${text}
-                    <span class="badge bg-primary rounded-pill">${time}</span>
-                </li>`
-                            $('#items').append(mystr);
-            }
-                        }
-else{
-      mystr = `<li class="list-group-item d-flex justify-content-between align-items-center">
-        Sorry,We are not able to fetch this order id and enmail. make sure to type corrct order id and eamil 
-                </li>`
-                            $('#items').append(mystr);
-}       
-             // fill in the order details
-              cart=JSON.parse(data['itemJson']);
-             console.log(cart); 
-for (var item in cart) {
-            let name = cart[item][1];
-            let qty = cart[item][0];
-            mystr = `<li class="list-group-item d-flex justify-content-between align-items-center">
-        ${name}
-                    <span class="badge bg-primary rounded-pill">${qty}</span>
-                </li>`
-            $('#citems').append(mystr);
+            });
+        });
+    });
+    return maxStep;
+}
+
+document.getElementById('tracker-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const orderId = document.getElementById('inputOrderID').value;
+    const email = document.getElementById('inputEmail4').value;
+
+    fetch("{% url 'TrackingStatus' %}", {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}'},
+        body: `inputOrderID=${encodeURIComponent(orderId)}&inputEmail4=${encodeURIComponent(email)}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('no-order-msg').style.display = 'none';
+        document.getElementById('tracking-result').style.display = 'none';
+
+        if (data.status === 'success') {
+            document.getElementById('tracking-result').style.display = 'block';
+            document.getElementById('order-summary').innerHTML =
+                `<strong>Order #${orderId}</strong> &nbsp;|&nbsp; 📧 ${email}`;
+
+            // Set timeline
+            const activeStep = getActiveStep(data.updates);
+            const activeIdx = STEP_ORDER.indexOf(activeStep);
+            STEP_ORDER.forEach((stepId, idx) => {
+                const el = document.getElementById(stepId);
+                el.classList.remove('active', 'done');
+                if (idx < activeIdx) el.classList.add('done');
+                else if (idx === activeIdx) el.classList.add('active');
+            });
+            document.getElementById('timeline-progress').style.width = PROGRESS_MAP[activeStep];
+
+            // Render updates
+            const list = document.getElementById('updates-list');
+            list.innerHTML = '<h6 class="fw-bold mb-3">📝 Activity Log</h6>';
+            data.updates.slice().reverse().forEach(u => {
+                list.innerHTML += `
+                <div class="update-item">
+                    <div class="update-icon">📌</div>
+                    <div>
+                        <div class="update-text">${u.text}</div>
+                        <div class="update-time">${u.time}</div>
+                    </div>
+                </div>`;
+            });
+        } else {
+            document.getElementById('no-order-msg').style.display = 'block';
         }
-
-
-
-
-})
-                event.preventDefault(); // <--- ADD THIS to stop the page from refreshing
-
-            })
-        </script>
-        {% endblock %}
+    });
+});
+</script>
+{% endblock %}

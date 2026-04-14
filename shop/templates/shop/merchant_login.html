@@ -1,0 +1,31 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Merchant Login{% endblock %}
+
+{% block body %}
+<div class="container my-4" style="max-width: 420px;">
+    <h2 class="mb-1">Merchant Login</h2>
+    <p class="text-muted mb-4">Sign in to your seller account.</p>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    {{ form.password }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+        </div>
+    </div>
+    <p class="text-center mt-3 text-muted small">Don't have an account? <a href="{% url 'MerchantRegister' %}">Register as a seller</a></p>
+</div>
+{% endblock %}

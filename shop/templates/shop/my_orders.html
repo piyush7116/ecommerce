@@ -1,0 +1,184 @@
+{% extends 'shop/basic.html' %}
+{% block title %}My Orders{% endblock %}
+{% block css %}
+<style>
+    .orders-container { padding: 2rem; min-height: 80vh; }
+    .order-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        padding: 1.5rem;
+        margin-bottom: 1.2rem;
+        border-left: 5px solid #7c5cbf;
+        transition: transform 0.2s;
+    }
+    .order-card:hover { transform: translateX(4px); }
+    .badge-status {
+        font-size: 0.85rem; padding: 0.4em 0.9em; border-radius: 20px;
+    }
+    .status-success { background: #d1fae5; color: #065f46; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-failed  { background: #fee2e2; color: #991b1b; }
+    h2 { font-weight: 700; color: #1a1a2e; margin-bottom: 1.5rem; }
+</style>
+{% endblock %}
+{% block body %}
+<div class="orders-container container">
+    <h2>🛍️ My Orders</h2>
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+    {% if not email_entered %}
+    <div class="row mt-4">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-sm p-4 border-0" style="border-radius: 12px;">
+                <h5 class="text-center mb-4">Enter email to view your orders</h5>
+                <form method="POST" id="email-form">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input type="email" id="email-input" name="email" class="form-control py-2" placeholder="Email used during checkout" required>
+                        <button type="button" id="btn-send-otp" class="btn btn-primary px-4">Get OTP</button>
+                    </div>
+                </form>
+                
+                <div id="otp-section" style="display:none;" class="mt-3">
+                    <p class="text-muted small">We've sent a 6-digit OTP to your email. Enter it below to proceed.</p>
+                    <div class="input-group mb-3">
+                        <input type="text" id="phone-otp-input" class="form-control py-2" maxlength="6" placeholder="Enter OTP">
+                        <button type="button" id="btn-verify-otp" class="btn btn-success px-4">Verify & View</button>
+                    </div>
+                    <div id="otp-message" class="alert" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif orders %}
+    <div class="text-end mb-3">
+        <a href="?clear=1" onclick="localStorage.removeItem('cart'); document.cookie='sessionid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';" class="text-muted text-decoration-none">Not you? Change Email</a>
+    </div>
+    {% for order in orders %}
+    <div class="order-card">
+        <div class="d-flex justify-content-between align-items-start flex-wrap">
+            <div>
+                <h5 class="mb-1">Order #{{ order.order_id }}</h5>
+                <p class="text-muted mb-1">📅 {{ order.created_at|date:"d M Y, H:i" }}</p>
+                <p class="mb-1">💰 <strong>₹{{ order.amount }}</strong></p>
+                <p class="mb-0">📦 {{ order.city }}, {{ order.state }}</p>
+            </div>
+            <div class="text-end mt-2">
+                <span class="badge-status
+                    {% if order.payment_status == 'Success' %}status-success
+                    {% elif order.payment_status == 'Failed' %}status-failed
+                    {% else %}status-pending{% endif %}">
+                    {{ order.payment_status }}
+                </span>
+                <br>
+                <a href="{% url 'TrackingStatus' %}" class="btn btn-sm btn-outline-primary mt-2">
+                    🔍 Track Order
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="text-center py-5">
+        <h4 class="text-muted">You haven't placed any orders yet.</h4>
+        <a href="{% url 'index_shop' %}" class="btn btn-primary mt-3">Start Shopping</a>
+        <br><br>
+        <form method="POST" class="d-inline-block">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="">
+            <button type="submit" class="btn btn-link text-muted mt-2">Or check a different email</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    var btnSendOtp = document.getElementById('btn-send-otp');
+    var btnVerifyOtp = document.getElementById('btn-verify-otp');
+    if (btnSendOtp) {
+        btnSendOtp.addEventListener('click', function() {
+            var email = document.getElementById('email-input').value.trim();
+            if (!email) {
+                alert('Please enter your email address first.');
+                return;
+            }
+
+            var btn = this;
+            btn.disabled = true;
+            btn.innerText = 'Sending...';
+
+            fetch('/shop/send_otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerText = 'Resend OTP';
+                if (data.success) {
+                    document.getElementById('otp-section').style.display = 'block';
+                    var msgBox = document.getElementById('otp-message');
+                    msgBox.style.display = 'block';
+                    msgBox.className = 'alert alert-info mt-2';
+                    msgBox.innerText = 'OTP sent to your email!';
+                } else {
+                    alert('Could not send OTP. Please check your email and try again.');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerText = 'Retry';
+                alert('Network error while sending OTP: ' + err);
+            });
+        });
+
+        btnVerifyOtp.addEventListener('click', function() {
+            var phoneOtp = document.getElementById('phone-otp-input').value.trim();
+            if (!phoneOtp) {
+                alert('Please enter the OTP sent to your email.');
+                return;
+            }
+
+            var btn = this;
+            btn.disabled = true;
+            btn.innerText = 'Verifying...';
+
+            fetch('/shop/verify_otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ phone_otp: phoneOtp })
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerText = 'Verify & View';
+                if (data.success) {
+                    // Automatically submit the form to load the orders since session now has 'otp_verified' = True
+                    document.getElementById('email-form').submit();
+                } else {
+                    var msgBox = document.getElementById('otp-message');
+                    msgBox.style.display = 'block';
+                    msgBox.className = 'alert alert-danger mt-2';
+                    msgBox.innerText = '❌ ' + (data.error || 'OTP verification failed');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                alert('Network error: ' + err);
+            });
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Delete Product - Merchant Dashboard{% endblock %}
+{% block body %}
+<div class="container mt-5">
+    <div class="card text-center shadow" style="max-width:500px;margin:auto;border-radius:16px;">
+        <div class="card-body p-5">
+            <h3 class="text-danger mb-3">⚠️ Delete Product</h3>
+            <p class="lead">Are you sure you want to delete <strong>{{ product.product_name }}</strong>?</p>
+            <p class="text-muted">This action cannot be undone.</p>
+            <form method="POST">
+                {% csrf_token %}
+                <a href="{% url 'MerchantDashboard' %}" class="btn btn-secondary me-3">Cancel</a>
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

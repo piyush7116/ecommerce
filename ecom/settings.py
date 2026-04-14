@@ -10,25 +10,25 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9k-1b_rro(+*bp%msf8ddp&b9m9mers*$jpm8ae5@_7cg!^9@@'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'default-unsafe-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "jagged-natacha-unmarred.ngrok-free.dev",
+ALLOWED_HOSTS = ['*'] # Allowed hosts set to * to support Render deployment
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://jagged-natacha-unmarred.ngrok-free.dev",
 ]
 
 
@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'blog'
 ]
 
 MIDDLEWARE = [
@@ -78,16 +77,15 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600
+    )
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -125,17 +123,26 @@ STATIC_URL = 'static/'
 MEDIA_ROOT= os.path.join(BASE_DIR,'media')
 MEDIA_URL='/media/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-PAYTM_MID = "SjAkjH86888073077243"
-PAYTM_MERCHANT_KEY = "NyqLYjDhYdV%%8As"
+PAYTM_MID = os.environ.get('PAYTM_MID', 'default_mid')
+PAYTM_MERCHANT_KEY = os.environ.get('PAYTM_MERCHANT_KEY', 'default_key')
 PAYTM_WEBSITE = "WEBSTAGING"   # for testing
 PAYTM_INDUSTRY_TYPE_ID = "Retail"
 PAYTM_CHANNEL_ID = "WEB"
 PAYTM_CALLBACK_URL = "https://jagged-natacha-unmarred.ngrok-free.dev/shop/handlerequest/" 
 
-RAZOR_KEY_ID = 'rzp_test_S1NLU4Ff95qmgv'
-RAZOR_KEY_SECRET = 'HdEn7RngZEYN4vCesOohViKF'
+RAZOR_KEY_ID = os.environ.get('RAZOR_KEY_ID', '')
+RAZOR_KEY_SECRET = os.environ.get('RAZOR_KEY_SECRET', '')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Redirect login_required to Django's login page
+LOGIN_URL = '/accounts/login/'

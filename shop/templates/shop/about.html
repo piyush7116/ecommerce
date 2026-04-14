@@ -1,6 +1,6 @@
 {% extends 'shop/basic.html' %}
-
-{% block title %} Title of About{% endblock %}
+{% load static %}
+{% block title %} About Us - My Awesome Cart{% endblock %}
 {% block body %}
 
     <!-- <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/carousel/">
@@ -99,64 +99,43 @@
     </style>{% endblock %}
 </head>
 
-<body>
+<body style="background-color: #fcfcfc;">
     <main>
-        <section class="py-5 text-center container">
-            <div class="row py-lg-5">
-               <div class=" align-items-center">
-    
-    <div class="row col-md-5">
-        <h1 class="text-start fw-light">My Awesome Cart</h1>
-    </div>
-
-    <div class="row col-md-8">
-        <p class="lead text-body-secondary mx-3 text-start">
-            Flipkart Inc. is an Indian e-commerce company, headquartered in Bengaluru, and incorporated in Singapore as a private limited company. The company initially focused on online book sales before expanding into other product categories such as consumer electronics, fashion, home essentials, groceries, and lifestyle products.[5][6] In 2025, the company shifted domicile from Singapore to India.[7]
-        </p>
-        <p>
-            <a href="#" class="btn btn-primary my-2">Learn More >></a>
-        </p>
-    </div>
-    
-</div>
+        <section class="py-5 text-center container mt-4" style="background-color: #f8f9fa; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+            <div class="row py-lg-5 justify-content-center">
+                <div class="col-lg-8 col-md-10 mx-auto text-center">
+                    <h1 class="fw-light text-center" style="color: #444;">My Awesome Cart</h1>
+                    <p class="lead text-muted mx-3 mt-4" style="font-size: 1.15rem; line-height: 1.7;">
+                        Welcome to My Awesome Cart, your ultimate destination for everything you love. Founded with a vision to build a thriving e-commerce ecosystem, we aim to connect millions of buyers with certified sellers across the globe. From daily essentials to high-end electronics, fashion trends, and lifestyle products, we deliver quality, trust, and convenience straight to your doorstep.
+                    </p>
+                    <p class="mt-4">
+                        <a href="/shop" class="btn btn-primary px-4 py-2" style="border-radius: 30px;">Start Shopping</a>
+                    </p>
+                </div>
             </div>
         </section>
         <!-- Marketing messaging and featurettes
   ================================================== -->
         <!-- Wrap the rest of the page in another container to center all the content. -->
         <div class="container marketing"> <!-- Three columns of text below the carousel -->
-            <div class="row">
-                <div class="col-lg-4"> <svg aria-label="Placeholder" class="bd-placeholder-img rounded-circle"
-                        height="140" preserveAspectRatio="xMidYMid slice" role="img" width="140"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <title>Placeholder</title>
-                        <rect width="100%" height="100%" fill="var(--bs-secondary-color)"></rect>
-                    </svg>
-                    <h2 class="fw-normal">Heading</h2>
-                    <p>Some representative placeholder content for the three columns of text below the carousel. This is
-                        the first column.</p>
-                    <p><a class="btn btn-secondary" href="#">View details &raquo;</a></p>
+            <div class="row text-center mt-5">
+                <div class="col-lg-4 mb-4">
+                    <img src="{% static 'shop/about_quality.png' %}" class="rounded-circle shadow-sm mb-3" width="140" height="140" style="object-fit: cover; border: 4px solid #fff;" alt="Quality Assured">
+                    <h2 class="fw-normal" style="color: #555;">Quality Assured</h2>
+                    <p class="text-muted">Every product on our platform goes through strict quality checks. We partner with top merchants to ensure you always get exactly what you pay for.</p>
+                    <p><a class="btn btn-outline-secondary btn-sm" style="border-radius:20px;" href="/shop">Shop Now &raquo;</a></p>
                 </div><!-- /.col-lg-4 -->
-                <div class="col-lg-4"> <svg aria-label="Placeholder" class="bd-placeholder-img rounded-circle"
-                        height="140" preserveAspectRatio="xMidYMid slice" role="img" width="140"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <title>Placeholder</title>
-                        <rect width="100%" height="100%" fill="var(--bs-secondary-color)"></rect>
-                    </svg>
-                    <h2 class="fw-normal">Heading</h2>
-                    <p>Another exciting bit of representative placeholder content. This time, we've moved on to the
-                        second column.</p>
-                    <p><a class="btn btn-secondary" href="#">View details &raquo;</a></p>
+                <div class="col-lg-4 mb-4">
+                    <img src="{% static 'shop/about_delivery.png' %}" class="rounded-circle shadow-sm mb-3" width="140" height="140" style="object-fit: cover; border: 4px solid #fff;" alt="Lightning Fast Delivery">
+                    <h2 class="fw-normal" style="color: #555;">Lightning Fast</h2>
+                    <p class="text-muted">Enjoy our express delivery network that ensures your orders are processed immediately and reach your address in record time with full tracking.</p>
+                    <p><a class="btn btn-outline-secondary btn-sm" style="border-radius:20px;" href="/shop/tracker">Track Order &raquo;</a></p>
                 </div><!-- /.col-lg-4 -->
-                <div class="col-lg-4"> <svg aria-label="Placeholder" class="bd-placeholder-img rounded-circle"
-                        height="140" preserveAspectRatio="xMidYMid slice" role="img" width="140"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <title>Placeholder</title>
-                        <rect width="100%" height="100%" fill="var(--bs-secondary-color)"></rect>
-                    </svg>
-                    <h2 class="fw-normal">Heading</h2>
-                    <p>And lastly this, the third column of representative placeholder content.</p>
-                    <p><a class="btn btn-secondary" href="#">View details &raquo;</a></p>
+                <div class="col-lg-4 mb-4">
+                    <img src="{% static 'shop/about_support.png' %}" class="rounded-circle shadow-sm mb-3" width="140" height="140" style="object-fit: cover; border: 4px solid #fff;" alt="24/7 Support">
+                    <h2 class="fw-normal" style="color: #555;">24/7 Support</h2>
+                    <p class="text-muted">Our dedicated customer success team is always online to help you. Whether you have a question about a product, or need help with a return, we're here.</p>
+                    <p><a class="btn btn-outline-secondary btn-sm" style="border-radius:20px;" href="/shop/contact">Contact Us &raquo;</a></p>
                 </div><!-- /.col-lg-4 -->
             </div><!-- /.row --> <!-- START THE FEATURETTES -->
 

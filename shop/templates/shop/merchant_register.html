@@ -1,0 +1,74 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Merchant Registration{% endblock %}
+
+{% block body %}
+<div class="container my-4" style="max-width: 650px;">
+    <h2 class="mb-1">Become a Seller</h2>
+    <p class="text-muted mb-4">Create your merchant account to start selling on My Awesome Cart.</p>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <h5 class="mb-3">Account Details</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Username</label>
+                        {{ form.username }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Password</label>
+                        {{ form.password }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Confirm Password</label>
+                        {{ form.password2 }}
+                    </div>
+                </div>
+
+                <hr>
+                <h5 class="mb-3">Shop Details</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Shop Name <span class="text-danger">*</span></label>
+                        {{ form.shop_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Shop Location / Address <span class="text-danger">*</span></label>
+                        {{ form.shop_location }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">GST Number <span class="text-muted small">(optional)</span></label>
+                        {{ form.gst_number }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Shop Description <span class="text-muted small">(optional)</span></label>
+                        {{ form.description }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-4 w-100">Submit Registration</button>
+            </form>
+        </div>
+    </div>
+    <p class="text-center mt-3 text-muted small">Already registered? <a href="{% url 'MerchantLogin' %}">Login here</a></p>
+</div>
+{% endblock %}
