@@ -684,8 +684,8 @@ def merchant_verify_otp(request):
                 record.save()
                 from django.contrib.auth.models import User as AuthUser
                 user = AuthUser.objects.get(pk=uid)
+                request.session.pop('merchant_pending_uid', None)
                 login(request, user)
-                del request.session['merchant_pending_uid']
                 return redirect('MerchantDashboard')
         except OTPRecord.DoesNotExist:
             error = 'No OTP found. Please login again.'

@@ -25,8 +25,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default-unsafe-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['ecommerce-958c.onrender.com']
-CSRF_TRUSTED_ORIGINS = ['https://ecommerce-958c.onrender.com']
+ALLOWED_HOSTS = ['ecommerce-958c.onrender.com', '*']
+CSRF_TRUSTED_ORIGINS = ['https://ecommerce-958c.onrender.com', 'https://*.ngrok-free.dev']
 
 
 # Application definition
