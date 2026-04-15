@@ -826,34 +826,38 @@ def _send_email_otp_gmail(to_email, otp):
 
 @csrf_exempt
 def send_otp(request):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=400)
     try:
-        data = json.loads(request.body.decode('utf-8'))
-    except Exception:
-        return JsonResponse({'error': 'invalid json'}, status=400)
+        if request.method != 'POST':
+            return JsonResponse({'error': 'POST required'}, status=400)
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            return JsonResponse({'error': 'invalid json'}, status=400)
 
-    email = data.get('email', '').strip()
-    if not email:
-        return JsonResponse({'error': 'Email is required'}, status=400)
+        email = data.get('email', '').strip()
+        if not email:
+            return JsonResponse({'error': 'Email is required'}, status=400)
 
-    otp = _generate_otp()
+        otp = _generate_otp()
 
-    if not request.session.session_key:
-        request.session.create()
-    session_key = request.session.session_key
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
 
-    OTPRecord.objects.filter(session_key=session_key).delete()
-    OTPRecord.objects.create(
-        email=email, phone='',
-        email_otp='000000', phone_otp=otp,
-        session_key=session_key,
-    )
+        OTPRecord.objects.filter(session_key=session_key).delete()
+        OTPRecord.objects.create(
+            email=email, phone='',
+            email_otp='000000', phone_otp=otp,
+            session_key=session_key,
+        )
 
-    sent = _send_email_otp_gmail(email, otp)
-    print(f"DEBUG OTP — {otp}")
+        sent = _send_email_otp_gmail(email, otp)
+        print(f"DEBUG OTP — {otp}")
 
-    return JsonResponse({'success': True, 'message': 'OTP sent to your email.'})
+        return JsonResponse({'success': True, 'message': 'OTP sent to your email.'})
+    except Exception as e:
+        import traceback
+        return JsonResponse({'success': False, 'error': f'CRASH: {str(e)} | {traceback.format_exc()}'})
 
 @csrf_exempt
 def verify_otp(request):

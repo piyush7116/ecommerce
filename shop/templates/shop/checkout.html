@@ -167,7 +167,7 @@ document.getElementById('btn-send-otp').addEventListener('click', function() {
             msgBox.className = 'alert alert-info';
             msgBox.innerText = 'OTP sent to your phone number.';
         } else {
-            alert('Could not send OTP. Please check your phone number and try again.');
+            alert('Error: ' + (data.error || 'Could not send OTP. Please check your email.'));
         }
     })
     .catch(err => {

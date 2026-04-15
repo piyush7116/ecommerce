@@ -131,7 +131,7 @@
                     msgBox.className = 'alert alert-info mt-2';
                     msgBox.innerText = 'OTP sent to your email!';
                 } else {
-                    alert('Could not send OTP. Please check your email and try again.');
+                    alert('Error: ' + (data.error || 'Could not send OTP. Please check your email.'));
                 }
             })
             .catch(err => {
