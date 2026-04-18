@@ -1,24 +1,111 @@
 {% extends 'shop/basic.html' %}
 
 {% block title %}{{product.product_name}}-my awesome cart {% endblock %}
+{% block css %}
+<style>
+    .product-view-container {
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .product-img {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+    }
+    .product-img:hover {
+        transform: scale(1.02);
+    }
+    .product-title {
+        font-weight: 700;
+        font-size: 2rem;
+        color: #2d3436;
+        margin-bottom: 10px;
+    }
+    .product-price {
+        font-size: 1.5rem;
+        color: #0984e3;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    .product-desc {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #636e72;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #0984e3;
+    }
+    .btn-buy {
+        background: #2d3436;
+        border-color: #2d3436;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-buy:hover {
+        background: #000;
+        transform: translateY(-2px);
+    }
+    .btn-cart {
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-cart:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="container my-4">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="row">
-                <img src="/media/{{product.image}}" alt="">
+<div class="container my-5">
+    <div class="product-view-container">
+        <div class="row">
+            <div class="col-md-5 text-center">
+                <img src="{{product.image.url}}" class="product-img shadow-sm mb-4" alt="{{product.product_name}}">
+                <div class="d-flex justify-content-center gap-3">
+                    <button id="buypr{{product.id}}" class="btn btn-dark btn-buy buy-now" type="button">Buy Now</button>
+                    <span id="divpr{{product.id}}" class="divpr">
+                        <button id="pr{{product.id}}" class="cart btn btn-primary btn-cart" type="button">Add To Cart</button>
+                    </span>
+                </div>
             </div>
-            <div class="row">
-                <button class=" btn btn-primary mx-3 my-3" style="width:28%" type="button">Buy Now </button>
-                <button class=" btn btn-primary mx-3 my-3"  style="width:35%"   type="button">Add To Cart </button>
+            <div class="col-md-7 ps-md-5 mt-4 mt-md-0">
+                <h1 id="namepr{{product.id}}" class="product-title">{{product.product_name}}</h1>
+                <p class="product-price">Rs. <span id="pricepr{{product.id}}">{{product.price}}</span></p>
+                <hr>
+                <div class="product-desc">
+                    {{product.desc|linebreaks}}
+                </div>
             </div>
-        </div>
-        <div class="col-md-8">
-            <h5>{{product.product_name}}</h5>
-            <p><b>Rs. {{product.price}}</b></p>
-            <p>{{product.desc}}</p>
         </div>
     </div>
 </div>
-
 {% endblock %}
+
+{% block js %}
+<script>
+// Logic for "Buy Now" - adds item to cart and redirects to checkout
+$(document).on('click', '.buy-now', function() {
+    var idstr = "pr" + this.id.slice(5); // Convert buyprX to prX
+    
+    if (cart[idstr] == undefined) {
+        var qty = 1;
+        var name = document.getElementById('name' + idstr).innerHTML;
+        var price = document.getElementById('price' + idstr).innerHTML;
+        cart[idstr] = [qty, name, parseInt(price)];
+    } else {
+        cart[idstr][0] = cart[idstr][0] + 1;
+    }
+    
+    updateCart(cart);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    document.location = "/shop/checkout";
+});
+</script>
+{% endblock %}
