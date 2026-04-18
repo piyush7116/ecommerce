@@ -12,7 +12,7 @@ import requests as req_lib
 from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from paytmchecksum import generateSignature, verifySignature
+
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from .forms import ProductForm, MerchantRegistrationForm, MerchantLoginForm
@@ -232,53 +232,7 @@ def checkout(request):
     
     return render(request, 'shop/checkout.html', context)
 
-# @csrf_exempt
-# def handlerequest(request):
-#     form=request.POST 
-#     response_dict={}
-#     for i in form.keys():
-#         response_dict[i]=form[i]
-#         if i=='CHECKSUMHASH':
-#             checksum=form[i]
-#     verify=verifySignature(response_dict, settings.PAYTM_MERCHANT_KEY,checksum)
-#     if verify:
-#         if response_dict['RESPCODE']=='01':
-#             print('order placed')
-#         else:
-#             print('order was nto successful'+response_dict['RESPONSE'])
-#     return render(request, 'shop/paymentstatus.html',{'response_dict':response_dict})
 
-
-# @csrf_exempt
-# def handlerequest(request):
-#     if request.method != "POST":
-#         return HttpResponse("Invalid request")
-
-#     response_dict = request.POST.dict()
-#     print("PAYTM RESPONSE:", response_dict)
-
-#     checksum = response_dict.pop('CHECKSUMHASH', None)
-
-#     if not checksum:
-#         return HttpResponse("CHECKSUM MISSING")
-
-#     verify = verifySignature(
-#         response_dict,
-#         settings.PAYTM_MERCHANT_KEY,
-#         checksum
-#     )
-
-#     if verify:
-#         if response_dict.get('RESPCODE') == '01':
-#             print("✅ PAYMENT SUCCESS")
-#         else:
-#             print("❌ PAYMENT FAILED:", response_dict.get('RESPMSG'))
-#     else:
-#         print("❌ CHECKSUM VERIFICATION FAILED")
-
-#     return render(request, 'shop/paymentstatus.html', {
-#         'response_dict': response_dict
-#     })
 
 
 

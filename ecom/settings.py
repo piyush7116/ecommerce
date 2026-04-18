@@ -25,8 +25,15 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default-unsafe-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['ecommerce-958c.onrender.com', '*']
+if DEBUG:
+    ALLOWED_HOSTS = ['ecommerce-958c.onrender.com', '*']
+else:
+    ALLOWED_HOSTS = ['ecommerce-958c.onrender.com']
+
 CSRF_TRUSTED_ORIGINS = ['https://ecommerce-958c.onrender.com', 'https://*.ngrok-free.dev']
+
+# Necessary for Render's HTTPS proxy handling
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
@@ -39,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -118,19 +126,33 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_ROOT= os.path.join(BASE_DIR,'media')
-MEDIA_URL='/media/'
 STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+
+# AWS S3 Settings
+USE_S3 = os.environ.get('USE_S3', 'False') == 'True'
+
+if USE_S3:
+    # AWS Credentials
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+    
+    # S3 Storage settings
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    
+    # Media files (S3)
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+else:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
 
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-PAYTM_MID = os.environ.get('PAYTM_MID', 'default_mid')
-PAYTM_MERCHANT_KEY = os.environ.get('PAYTM_MERCHANT_KEY', 'default_key')
-PAYTM_WEBSITE = "WEBSTAGING"   # for testing
-PAYTM_INDUSTRY_TYPE_ID = "Retail"
-PAYTM_CHANNEL_ID = "WEB"
-PAYTM_CALLBACK_URL = "https://jagged-natacha-unmarred.ngrok-free.dev/shop/handlerequest/" 
 
 RAZOR_KEY_ID = os.environ.get('RAZOR_KEY_ID', '')
 RAZOR_KEY_SECRET = os.environ.get('RAZOR_KEY_SECRET', '')
