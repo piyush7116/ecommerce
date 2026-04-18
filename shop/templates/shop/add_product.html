@@ -26,7 +26,7 @@
                 {% if field.name == 'image' and product and product.image %}
                 <div class="mb-3">
                     <small class="text-muted">Current image:</small><br>
-                    <img src="/media/{{ product.image }}" alt="Current" style="height:100px;object-fit:cover;border-radius:6px;margin-top:4px;">
+                    <img src="{{ product.image.url }}" alt="Current" style="height:100px;object-fit:cover;border-radius:6px;margin-top:4px;">
                 </div>
                 {% endif %}
                 {% endfor %}

@@ -89,23 +89,25 @@
 {% endblock %}
 
 {% block js %}
+{{ block.super }}
 <script>
 // Logic for "Buy Now" - adds item to cart and redirects to checkout
 $(document).on('click', '.buy-now', function() {
     var idstr = "pr" + this.id.slice(5); // Convert buyprX to prX
     
+    // Check if item already in cart
     if (cart[idstr] == undefined) {
         var qty = 1;
-        var name = document.getElementById('name' + idstr).innerHTML;
-        var price = document.getElementById('price' + idstr).innerHTML;
-        cart[idstr] = [qty, name, parseInt(price)];
-    } else {
-        cart[idstr][0] = cart[idstr][0] + 1;
+        var name = document.getElementById('name' + idstr).innerText.trim();
+        var priceText = document.getElementById('price' + idstr).innerText.trim();
+        var price = parseInt(priceText.replace(/[^0-9]/g, '')) || 0;
+        cart[idstr] = [qty, name, price];
     }
     
+    // Save and redirect
     updateCart(cart);
     localStorage.setItem('cart', JSON.stringify(cart));
-    document.location = "/shop/checkout";
+    window.location.href = "/shop/checkout";
 });
 </script>
 {% endblock %}

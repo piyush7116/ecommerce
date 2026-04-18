@@ -97,6 +97,7 @@
 </div>
 {% endblock %}
 {% block js %}
+{{ block.super }}
 <script>
     var btnSendOtp = document.getElementById('btn-send-otp');
     var btnVerifyOtp = document.getElementById('btn-verify-otp');
