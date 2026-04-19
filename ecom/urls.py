@@ -21,8 +21,11 @@ from .import views
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/',admin.site.urls),
-    path('shop/',include('shop.urls')),
+    path('admin/', admin.site.urls),
+    path('shop/', include('shop.urls')),
+    path('', views.index, name='index'),
+]
 
-    path('',views.index,name='index'),
-]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+if settings.MEDIA_URL and settings.MEDIA_ROOT:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

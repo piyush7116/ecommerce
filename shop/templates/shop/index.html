@@ -136,13 +136,27 @@ color: #3752c3;
   }
 
   .card-body {
-    width: 122%;
+    width: 100%;
+    padding: 15px;
   }
 
   .card-title,
   .card-text {
-    width: 86%;
+    width: 100%;
   }
+
+  /* Responsive adjustment for small screens */
+  @media (max-width: 768px) {
+    .col-md-3 {
+      display: block;
+      width: 100%;
+    }
+    .card {
+      height: auto;
+      min-height: 400px;
+    }
+  }
+
 </style>
 {% endblock %}
 
